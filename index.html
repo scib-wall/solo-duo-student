@@ -792,9 +792,9 @@
                 const rState = snap.data();
                 const phaseKey = `${rState.phase}-${rState.roundIndex}-${rState.updatedAt}`;
                 if (phaseKey === student.lastCloudPhaseKey) return;
-                student.lastCloudPhaseKey = phaseKey;
-
-                if (rState.phase === "playing") {
+                if (rState.phase === "closed") {
+                  exitClass();
+                } else if (rState.phase === "playing") {
                   startRoundView(rState.roundData, rState.timer || ROUND_DURATION);
                 } else if (rState.phase === "timesup") {
                   lockRoundInputs();
@@ -895,7 +895,12 @@
           });
 
           conn.on("error", () => {
-            if (!connected) retryTimer = setTimeout(attemptConnect, 1500);
+            if (connected) exitClass();
+            else retryTimer = setTimeout(attemptConnect, 1500);
+          });
+
+          conn.on("close", () => {
+            if (connected) exitClass();
           });
         };
 
@@ -1027,6 +1032,11 @@
 
     function handleServerMessage(msg) {
       if (!msg || !msg.type) return;
+
+      if (msg.type === "HOST_RESET") {
+        exitClass();
+        return;
+      }
 
       if (msg.type === "ROSTER_SYNC") {
         student.roster = msg.roster || [];
