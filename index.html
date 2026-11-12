@@ -410,10 +410,15 @@
     const ROUND_DURATION = 10;
     const AVATARS = ["🦊", "🐼", "🐸", "🦁", "🐨", "🐧", "🦄", "🐙", "🐯", "🐰", "🐶", "🐱"];
 
+    // 36 compact, well-spaced slots around the center student node for a 35-student class
     const YARD_SLOTS = [
-      { x: 16, y: 26 }, { x: 35, y: 22 }, { x: 65, y: 22 }, { x: 84, y: 26 },
-      { x: 14, y: 55 }, { x: 86, y: 55 },
-      { x: 18, y: 78 }, { x: 36, y: 75 }, { x: 64, y: 75 }, { x: 82, y: 78 }
+      { x: 12, y: 24 }, { x: 25, y: 21 }, { x: 38, y: 20 }, { x: 50, y: 20 }, { x: 62, y: 20 }, { x: 75, y: 21 }, { x: 88, y: 24 },
+      { x: 10, y: 36 }, { x: 23, y: 34 }, { x: 36, y: 33 }, { x: 64, y: 33 }, { x: 77, y: 34 }, { x: 90, y: 36 },
+      { x: 10, y: 49 }, { x: 23, y: 47 }, { x: 77, y: 47 }, { x: 90, y: 49 },
+      { x: 10, y: 62 }, { x: 23, y: 60 }, { x: 77, y: 60 }, { x: 90, y: 62 },
+      { x: 12, y: 74 }, { x: 25, y: 72 }, { x: 38, y: 73 }, { x: 50, y: 74 }, { x: 62, y: 73 }, { x: 75, y: 72 }, { x: 88, y: 74 },
+      { x: 16, y: 84 }, { x: 30, y: 83 }, { x: 44, y: 84 }, { x: 56, y: 84 }, { x: 70, y: 83 }, { x: 84, y: 84 },
+      { x: 32, y: 48 }, { x: 68, y: 48 }
     ];
 
     function createFreshStudentState() {
@@ -1099,7 +1104,7 @@
       const existingMap = new Map(student.yardMates.map((m) => [m.id, m]));
       const usedSlots = new Set(student.yardMates.map((m) => m.slotIdx));
 
-      student.yardMates = realPeers.slice(0, 10).map((peer) => {
+      student.yardMates = realPeers.slice(0, 36).map((peer) => {
         if (existingMap.has(peer.id)) {
           const prev = existingMap.get(peer.id);
           return {
@@ -1118,7 +1123,7 @@
           slotIdx,
           homeX: YARD_SLOTS[slotIdx].x,
           homeY: YARD_SLOTS[slotIdx].y,
-          delay: (slotIdx * 0.25).toFixed(2)
+          delay: ((slotIdx * 0.17) % 2.2).toFixed(2)
         };
       });
 
@@ -1157,14 +1162,14 @@
 
       const realPeers = student.roster.filter((p) => p.id !== student.id);
       const slots = [...YARD_SLOTS].sort(() => Math.random() - 0.5);
-      student.yardMates = realPeers.slice(0, 10).map((m, i) => ({
+      student.yardMates = realPeers.slice(0, 36).map((m, i) => ({
         ...m,
         partnerId: null,
         partnerName: null,
         slotIdx: i,
         homeX: slots[i % slots.length].x,
         homeY: slots[i % slots.length].y,
-        delay: (i * 0.25).toFixed(2)
+        delay: ((i * 0.17) % 2.2).toFixed(2)
       }));
 
       renderYardClassmates();
@@ -1200,6 +1205,10 @@
       if (!container) return;
       container.innerHTML = "";
 
+      const isCrowded = student.yardMates.length > 14;
+      const boxSize = isCrowded ? "w-10 h-10 sm:w-11 sm:h-11 text-xl sm:text-2xl" : "w-13 h-13 sm:w-15 sm:h-15 text-3xl";
+      const labelSize = isCrowded ? "text-[9px] px-1.5" : "text-[11px] px-2.5";
+
       student.yardMates.forEach((mate) => {
         const isPairedWithMe = student.partnerId === mate.id;
         const pairedWithOther = !isPairedWithMe && Boolean(mate.partnerId);
@@ -1217,16 +1226,16 @@
         if (isPairedWithMe) {
           topBadge = `<span class="mb-0.5 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-extrabold uppercase shadow border border-white">🤝 Paired!</span>`;
         } else if (pairedWithOther) {
-          topBadge = `<span class="mb-0.5 px-2 py-0.5 rounded-full bg-indigo-500 text-white text-[9px] font-extrabold shadow border border-white">🔗 w/ ${escapeHTML(mate.partnerName || "Duo")}</span>`;
+          topBadge = `<span class="mb-0.5 px-1.5 py-0.2 rounded-full bg-indigo-500 text-white text-[8px] font-extrabold shadow border border-white">🔗 ${escapeHTML(mate.partnerName || "Duo")}</span>`;
         }
 
         btn.innerHTML = `
           <div class="mate-bob flex flex-col items-center" style="animation-delay: ${mate.delay}s">
             ${topBadge}
-            <div class="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl ${isPairedWithMe ? "bg-amber-100 border-amber-400" : pairedWithOther ? "bg-indigo-50 border-indigo-300" : "bg-white border-sky-300"} border-3 shadow-md flex items-center justify-center text-3xl">
+            <div class="${isPairedWithMe ? "w-13 h-13 sm:w-15 sm:h-15 text-3xl bg-amber-100 border-amber-400" : `${boxSize} ${pairedWithOther ? "bg-indigo-50 border-indigo-300" : "bg-white border-sky-300"}`} rounded-2xl border-2 shadow-md flex items-center justify-center">
               ${mate.avatar}
             </div>
-            <span class="mt-0.5 px-2.5 py-0.5 rounded-full ${isPairedWithMe ? "bg-amber-500 text-white" : "bg-slate-800 text-white"} font-bubbly font-bold text-[11px] shadow">
+            <span class="mt-0.5 ${labelSize} py-0.5 rounded-full ${isPairedWithMe ? "bg-amber-500 text-white" : "bg-slate-800 text-white"} font-bubbly font-bold shadow max-w-[74px] truncate">
               ${escapeHTML(mate.name)}
             </span>
           </div>
