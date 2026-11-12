@@ -281,6 +281,11 @@
           </span>
         </div>
 
+        <!-- Live Incoming Partner Alert Banner -->
+        <div id="incoming-pair-banner" class="hidden absolute top-11 left-1/2 -translate-x-1/2 z-30 bg-amber-500 text-white px-4 py-1 rounded-full text-xs font-extrabold shadow-md border-2 border-white animate-bounce whitespace-nowrap">
+          🤝 Someone paired with you!
+        </div>
+
         <!-- Glowing Tether Beam SVG -->
         <svg class="pointer-events-none absolute inset-0 w-full h-full z-10">
           <line id="beam-bg" x1="50%" y1="56%" x2="66%" y2="56%" stroke="#ffffff" stroke-width="10" stroke-linecap="round" class="hidden" />
@@ -701,6 +706,7 @@
             playersCol,
             (snap) => {
               const list = [];
+              let myDocData = null;
               snap.forEach((d) => {
                 const pData = d.data();
                 if (pData.online !== false) {
@@ -708,13 +714,38 @@
                     id: d.id,
                     name: pData.name,
                     avatar: pData.avatar,
-                    score: pData.score || 0
+                    score: pData.score || 0,
+                    choice: pData.choice || "SOLO",
+                    partnerId: pData.partnerId || null,
+                    partnerName: pData.partnerName || null
                   });
+                  if (d.id === student.id) myDocData = pData;
                 }
               });
               student.roster = list;
               renderLobbyMates();
-              if (!document.getElementById("view-play").classList.contains("hidden")) {
+
+              // Two-way partner sync: check if another student picked me OR broke our pair!
+              if (!document.getElementById("view-play").classList.contains("hidden") && !student.locked) {
+                if (myDocData) {
+                  const remotePartnerId = myDocData.partnerId || null;
+                  const remotePartnerName = myDocData.partnerName || null;
+
+                  if (remotePartnerId !== student.partnerId) {
+                    const wasPickedBySomeone = Boolean(remotePartnerId && !student.partnerId);
+                    student.partnerId = remotePartnerId;
+                    student.partnerName = remotePartnerName;
+
+                    if (wasPickedBySomeone) {
+                      playTone("pair");
+                      showIncomingBanner(`🤝 ${remotePartnerName} teamed up with you!`);
+                    } else if (!remotePartnerId) {
+                      playTone("pop");
+                      showIncomingBanner(`🧍 Back to SOLO!`);
+                    }
+                    updateChoiceVisuals();
+                  }
+                }
                 syncYardWithRoster();
               }
             },
@@ -866,13 +897,47 @@
     async function sendToHost(payload) {
       if (student.useCloud && cloudUser && payload.type === "PAIR_UPDATE") {
         try {
+          const prevPartnerId = payload.prevPartnerId || null;
           const myPlayerRef = doc(db, "artifacts", appId, "public", "data", `players_${student.roomCode}`, student.id);
+
+          // 1. Update my own document
           await updateDoc(myPlayerRef, {
             choice: payload.choice,
             partnerId: payload.partnerId,
             partnerName: payload.partnerName,
             timeLeft: payload.timeLeft
           });
+
+          // 2. If I had a previous partner and switched/unpaired, set them back to SOLO
+          if (prevPartnerId && prevPartnerId !== payload.partnerId) {
+            const oldPartnerRef = doc(db, "artifacts", appId, "public", "data", `players_${student.roomCode}`, prevPartnerId);
+            await updateDoc(oldPartnerRef, {
+              choice: "SOLO",
+              partnerId: null,
+              partnerName: null
+            }).catch(() => {});
+          }
+
+          // 3. If I picked a new partner, link them to me two-way (and release their old partner if any)
+          if (payload.partnerId) {
+            const targetMate = student.roster.find((m) => m.id === payload.partnerId);
+            if (targetMate && targetMate.partnerId && targetMate.partnerId !== student.id) {
+              const displacedRef = doc(db, "artifacts", appId, "public", "data", `players_${student.roomCode}`, targetMate.partnerId);
+              await updateDoc(displacedRef, {
+                choice: "SOLO",
+                partnerId: null,
+                partnerName: null
+              }).catch(() => {});
+            }
+
+            const newPartnerRef = doc(db, "artifacts", appId, "public", "data", `players_${student.roomCode}`, payload.partnerId);
+            await updateDoc(newPartnerRef, {
+              choice: "DUO",
+              partnerId: student.id,
+              partnerName: student.name,
+              timeLeft: payload.timeLeft
+            }).catch(() => {});
+          }
         } catch (e) {}
         return;
       }
@@ -935,6 +1000,24 @@
         renderLobbyMates();
         if (!document.getElementById("view-play").classList.contains("hidden")) {
           syncYardWithRoster();
+        }
+      }
+
+      if (msg.type === "PARTNER_CHANGED" && !student.locked) {
+        const newPartnerId = msg.partnerId || null;
+        const newPartnerName = msg.partnerName || null;
+        if (newPartnerId !== student.partnerId) {
+          student.partnerId = newPartnerId;
+          student.partnerName = newPartnerName;
+          if (newPartnerId) {
+            playTone("pair");
+            showIncomingBanner(`🤝 ${newPartnerName} teamed up with you!`);
+          } else {
+            playTone("pop");
+            showIncomingBanner(`🧍 Back to SOLO!`);
+          }
+          renderYardClassmates();
+          updateChoiceVisuals();
         }
       }
 
@@ -1092,17 +1175,29 @@
 
         btn.innerHTML = `
           <div class="mate-bob flex flex-col items-center" style="animation-delay: ${mate.delay}s">
-            ${isPaired ? `<span class="mb-0.5 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-extrabold shadow border border-white">🤝 DUO</span>` : ""}
+            ${isPaired ? `<span class="mb-0.5 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-extrabold uppercase shadow border border-white">🤝 Paired!</span>` : ""}
             <div class="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl ${isPaired ? "bg-amber-100 border-amber-400" : "bg-white border-sky-300"} border-3 shadow-md flex items-center justify-center text-3xl">
               ${mate.avatar}
             </div>
-            <span class="mt-0.5 px-2 py-0.5 rounded-full ${isPaired ? "bg-amber-500 text-white" : "bg-white/95 text-slate-800"} font-bubbly font-bold text-[11px] shadow-2xs">
+            <span class="mt-0.5 px-2.5 py-0.5 rounded-full ${isPaired ? "bg-amber-500 text-white" : "bg-slate-800 text-white"} font-bubbly font-bold text-[11px] shadow">
               ${escapeHTML(mate.name)}
             </span>
           </div>
         `;
         container.appendChild(btn);
       });
+    }
+
+    let bannerTimer = null;
+    function showIncomingBanner(text) {
+      const banner = document.getElementById("incoming-pair-banner");
+      if (!banner) return;
+      banner.textContent = text;
+      banner.classList.remove("hidden");
+      clearTimeout(bannerTimer);
+      bannerTimer = setTimeout(() => {
+        banner.classList.add("hidden");
+      }, 2600);
     }
 
     function onClickClassmate(mate) {
@@ -1112,6 +1207,7 @@
         return;
       }
 
+      const prevPartnerId = student.partnerId;
       student.partnerId = mate.id;
       student.partnerName = mate.name;
       playTone("pair");
@@ -1124,12 +1220,14 @@
         choice: "DUO",
         partnerId: mate.id,
         partnerName: mate.name,
+        prevPartnerId,
         timeLeft: student.timeLeft
       });
     }
 
     window.setSolo = function () {
       if (student.locked) return;
+      const prevPartnerId = student.partnerId;
       if (student.partnerId) playTone("pop");
       student.partnerId = null;
       student.partnerName = null;
@@ -1142,6 +1240,7 @@
         choice: "SOLO",
         partnerId: null,
         partnerName: null,
+        prevPartnerId,
         timeLeft: student.timeLeft
       });
     };
