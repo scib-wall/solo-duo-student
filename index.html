@@ -517,11 +517,16 @@
     // INITIALIZE & AUTO-CLEANUP ON TAB CLOSE / EXIT
     // =========================================================================
     window.addEventListener("DOMContentLoaded", async () => {
-      // Clear any previous inputs on fresh load
-      document.getElementById("input-name").value = "";
-      const params = new URLSearchParams(window.location.search);
-      const roomParam = params.get("room");
-      document.getElementById("input-room").value = roomParam ? roomParam.trim().toUpperCase() : "";
+      try {
+        const nameInput = document.getElementById("input-name");
+        const roomInput = document.getElementById("input-room");
+        if (nameInput) nameInput.value = "";
+        const params = new URLSearchParams(window.location.search);
+        const roomParam = params.get("room");
+        if (roomInput) {
+          roomInput.value = roomParam ? roomParam.trim().toUpperCase() : "";
+        }
+      } catch (e) {}
 
       if (hasCloudConfig) {
         try {
@@ -705,48 +710,54 @@
           student.unsubPlayers = onSnapshot(
             playersCol,
             (snap) => {
-              const list = [];
-              let myDocData = null;
-              snap.forEach((d) => {
-                const pData = d.data();
-                if (pData.online !== false) {
-                  list.push({
-                    id: d.id,
-                    name: pData.name,
-                    avatar: pData.avatar,
-                    score: pData.score || 0,
-                    choice: pData.choice || "SOLO",
-                    partnerId: pData.partnerId || null,
-                    partnerName: pData.partnerName || null
-                  });
-                  if (d.id === student.id) myDocData = pData;
-                }
-              });
-              student.roster = list;
-              renderLobbyMates();
-
-              // Two-way partner sync: check if another student picked me OR broke our pair!
-              if (!document.getElementById("view-play").classList.contains("hidden") && !student.locked) {
-                if (myDocData) {
-                  const remotePartnerId = myDocData.partnerId || null;
-                  const remotePartnerName = myDocData.partnerName || null;
-
-                  if (remotePartnerId !== student.partnerId) {
-                    const wasPickedBySomeone = Boolean(remotePartnerId && !student.partnerId);
-                    student.partnerId = remotePartnerId;
-                    student.partnerName = remotePartnerName;
-
-                    if (wasPickedBySomeone) {
-                      playTone("pair");
-                      showIncomingBanner(`🤝 ${remotePartnerName} teamed up with you!`);
-                    } else if (!remotePartnerId) {
-                      playTone("pop");
-                      showIncomingBanner(`🧍 Back to SOLO!`);
-                    }
-                    updateChoiceVisuals();
+              try {
+                const list = [];
+                let myDocData = null;
+                snap.forEach((d) => {
+                  const pData = d.data();
+                  if (pData && pData.online !== false) {
+                    list.push({
+                      id: d.id,
+                      name: pData.name || "Classmate",
+                      avatar: pData.avatar || "🦊",
+                      score: pData.score || 0,
+                      choice: pData.choice || "SOLO",
+                      partnerId: pData.partnerId || null,
+                      partnerName: pData.partnerName || null
+                    });
+                    if (d.id === student.id) myDocData = pData;
                   }
+                });
+                student.roster = list;
+                renderLobbyMates();
+
+                // Two-way partner sync: check if another student picked me OR broke our pair!
+                const playView = document.getElementById("view-play");
+                if (playView && !playView.classList.contains("hidden") && !student.locked) {
+                  if (myDocData) {
+                    const remotePartnerId = myDocData.partnerId || null;
+                    const remotePartnerName = myDocData.partnerName || null;
+
+                    if (remotePartnerId !== student.partnerId) {
+                      const prevName = student.partnerName;
+                      const wasPickedBySomeone = Boolean(remotePartnerId);
+                      student.partnerId = remotePartnerId;
+                      student.partnerName = remotePartnerName;
+
+                      if (wasPickedBySomeone) {
+                        playTone("pair");
+                        showIncomingBanner(`🤝 ${remotePartnerName} teamed up with you!`);
+                      } else {
+                        playTone("pop");
+                        showIncomingBanner(prevName ? `💔 ${prevName} unpaired — back to SOLO!` : `🧍 Back to SOLO!`);
+                      }
+                      updateChoiceVisuals();
+                    }
+                  }
+                  syncYardWithRoster();
                 }
-                syncYardWithRoster();
+              } catch (snapErr) {
+                console.warn("Roster snapshot error:", snapErr);
               }
             },
             (err) => console.error("Roster sync error:", err)
@@ -763,39 +774,43 @@
           student.unsubRoom = onSnapshot(
             roomRef,
             async (snap) => {
-              if (!snap.exists()) return;
-              const rState = snap.data();
-              const phaseKey = `${rState.phase}-${rState.roundIndex}-${rState.updatedAt}`;
-              if (phaseKey === student.lastCloudPhaseKey) return;
-              student.lastCloudPhaseKey = phaseKey;
+              try {
+                if (!snap.exists()) return;
+                const rState = snap.data();
+                const phaseKey = `${rState.phase}-${rState.roundIndex}-${rState.updatedAt}`;
+                if (phaseKey === student.lastCloudPhaseKey) return;
+                student.lastCloudPhaseKey = phaseKey;
 
-              if (rState.phase === "playing") {
-                startRoundView(rState.roundData, rState.timer || ROUND_DURATION);
-              } else if (rState.phase === "timesup") {
-                lockRoundInputs();
-              } else if (rState.phase === "revealed") {
-                clearInterval(student.timerHandle);
-                const mySnap = await getDoc(myPlayerRef);
-                const myData = mySnap.exists() ? mySnap.data() : {};
-                renderRevealView(rState.roundData, {
-                  chosen: myData.choice || (student.partnerId ? "DUO" : "SOLO"),
-                  correct: Boolean(myData.lastCorrect),
-                  gained: myData.lastGained || 0,
-                  totalScore: myData.score || student.score,
-                  rank: myData.rank || 1
-                });
-              } else if (rState.phase === "finale") {
-                const mySnap = await getDoc(myPlayerRef);
-                const myData = mySnap.exists() ? mySnap.data() : {};
-                showScreen("finale");
-                document.getElementById("fin-standing").textContent =
-                  `#${myData.rank || 1} Place — ${myData.score || student.score} pts!`;
-                launchConfetti(80);
-              } else if (rState.phase === "lobby") {
-                student.score = 0;
-                document.getElementById("hud-score").textContent = "0";
-                showScreen("lobby");
-                renderLobbyMates();
+                if (rState.phase === "playing") {
+                  startRoundView(rState.roundData, rState.timer || ROUND_DURATION);
+                } else if (rState.phase === "timesup") {
+                  lockRoundInputs();
+                } else if (rState.phase === "revealed") {
+                  clearInterval(student.timerHandle);
+                  const mySnap = await getDoc(myPlayerRef);
+                  const myData = mySnap.exists() ? mySnap.data() : {};
+                  renderRevealView(rState.roundData, {
+                    chosen: myData.choice || (student.partnerId ? "DUO" : "SOLO"),
+                    correct: Boolean(myData.lastCorrect),
+                    gained: myData.lastGained || 0,
+                    totalScore: myData.score || student.score,
+                    rank: myData.rank || 1
+                  });
+                } else if (rState.phase === "finale") {
+                  const mySnap = await getDoc(myPlayerRef);
+                  const myData = mySnap.exists() ? mySnap.data() : {};
+                  showScreen("finale");
+                  document.getElementById("fin-standing").textContent =
+                    `#${myData.rank || 1} Place — ${myData.score || student.score} pts!`;
+                  launchConfetti(80);
+                } else if (rState.phase === "lobby") {
+                  student.score = 0;
+                  document.getElementById("hud-score").textContent = "0";
+                  showScreen("lobby");
+                  renderLobbyMates();
+                }
+              } catch (roomErr) {
+                console.warn("Room snapshot error:", roomErr);
               }
             },
             (err) => console.error("Room listener error:", err)
@@ -1007,6 +1022,7 @@
         const newPartnerId = msg.partnerId || null;
         const newPartnerName = msg.partnerName || null;
         if (newPartnerId !== student.partnerId) {
+          const prevName = student.partnerName;
           student.partnerId = newPartnerId;
           student.partnerName = newPartnerName;
           if (newPartnerId) {
@@ -1014,7 +1030,7 @@
             showIncomingBanner(`🤝 ${newPartnerName} teamed up with you!`);
           } else {
             playTone("pop");
-            showIncomingBanner(`🧍 Back to SOLO!`);
+            showIncomingBanner(prevName ? `💔 ${prevName} unpaired — back to SOLO!` : `🧍 Back to SOLO!`);
           }
           renderYardClassmates();
           updateChoiceVisuals();
@@ -1073,7 +1089,13 @@
       student.yardMates = realPeers.slice(0, 10).map((peer) => {
         if (existingMap.has(peer.id)) {
           const prev = existingMap.get(peer.id);
-          return { ...prev, name: peer.name, avatar: peer.avatar };
+          return {
+            ...prev,
+            name: peer.name,
+            avatar: peer.avatar,
+            partnerId: peer.partnerId || null,
+            partnerName: peer.partnerName || null
+          };
         }
         let slotIdx = 0;
         while (usedSlots.has(slotIdx) && slotIdx < YARD_SLOTS.length - 1) slotIdx++;
@@ -1123,6 +1145,8 @@
       const slots = [...YARD_SLOTS].sort(() => Math.random() - 0.5);
       student.yardMates = realPeers.slice(0, 10).map((m, i) => ({
         ...m,
+        partnerId: null,
+        partnerName: null,
         slotIdx: i,
         homeX: slots[i % slots.length].x,
         homeY: slots[i % slots.length].y,
@@ -1159,12 +1183,14 @@
 
     function renderYardClassmates() {
       const container = document.getElementById("yard-classmates");
+      if (!container) return;
       container.innerHTML = "";
 
       student.yardMates.forEach((mate) => {
-        const isPaired = student.partnerId === mate.id;
-        const x = isPaired ? 66 : mate.homeX;
-        const y = isPaired ? 56 : mate.homeY;
+        const isPairedWithMe = student.partnerId === mate.id;
+        const pairedWithOther = !isPairedWithMe && Boolean(mate.partnerId);
+        const x = isPairedWithMe ? 66 : mate.homeX;
+        const y = isPairedWithMe ? 56 : mate.homeY;
 
         const btn = document.createElement("button");
         btn.type = "button";
@@ -1173,13 +1199,20 @@
         btn.className = "mate-node focus:outline-none";
         btn.onclick = () => onClickClassmate(mate);
 
+        let topBadge = "";
+        if (isPairedWithMe) {
+          topBadge = `<span class="mb-0.5 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-extrabold uppercase shadow border border-white">🤝 Paired!</span>`;
+        } else if (pairedWithOther) {
+          topBadge = `<span class="mb-0.5 px-2 py-0.5 rounded-full bg-indigo-500 text-white text-[9px] font-extrabold shadow border border-white">🔗 w/ ${escapeHTML(mate.partnerName || "Duo")}</span>`;
+        }
+
         btn.innerHTML = `
           <div class="mate-bob flex flex-col items-center" style="animation-delay: ${mate.delay}s">
-            ${isPaired ? `<span class="mb-0.5 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-extrabold uppercase shadow border border-white">🤝 Paired!</span>` : ""}
-            <div class="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl ${isPaired ? "bg-amber-100 border-amber-400" : "bg-white border-sky-300"} border-3 shadow-md flex items-center justify-center text-3xl">
+            ${topBadge}
+            <div class="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl ${isPairedWithMe ? "bg-amber-100 border-amber-400" : pairedWithOther ? "bg-indigo-50 border-indigo-300" : "bg-white border-sky-300"} border-3 shadow-md flex items-center justify-center text-3xl">
               ${mate.avatar}
             </div>
-            <span class="mt-0.5 px-2.5 py-0.5 rounded-full ${isPaired ? "bg-amber-500 text-white" : "bg-slate-800 text-white"} font-bubbly font-bold text-[11px] shadow">
+            <span class="mt-0.5 px-2.5 py-0.5 rounded-full ${isPairedWithMe ? "bg-amber-500 text-white" : "bg-slate-800 text-white"} font-bubbly font-bold text-[11px] shadow">
               ${escapeHTML(mate.name)}
             </span>
           </div>
