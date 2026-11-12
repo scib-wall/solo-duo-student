@@ -8,7 +8,7 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- PeerJS Fallback for Instant Local/Demo Mode -->
+  <!-- PeerJS Fallback -->
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
   <!-- Bubbly Classroom Fonts -->
@@ -19,7 +19,7 @@
   <style>
     body {
       font-family: 'Nunito', sans-serif;
-      background: linear-gradient(180deg, #38bdf8 0%, #bae6fd 45%, #fef08a 100%);
+      background: linear-gradient(180deg, #38bdf8 0%, #bae6fd 42%, #fef08a 100%);
       min-height: 100vh;
       overflow-x: hidden;
       color: #0f172a;
@@ -30,20 +30,20 @@
       font-family: 'Fredoka', cursive, sans-serif;
     }
 
-    @keyframes cloudFloat {
+    @keyframes cloudDrift {
       0%, 100% { transform: translateX(0px) translateY(0px); }
-      50% { transform: translateX(18px) translateY(-6px); }
+      50% { transform: translateX(18px) translateY(-5px); }
     }
 
     @keyframes bouncePop {
-      0% { opacity: 0; transform: scale(0.8) translateY(16px); }
-      70% { opacity: 1; transform: scale(1.04) translateY(-3px); }
+      0% { opacity: 0; transform: scale(0.75) translateY(14px); }
+      70% { opacity: 1; transform: scale(1.05) translateY(-2px); }
       100% { opacity: 1; transform: scale(1) translateY(0); }
     }
 
-    @keyframes classmateBob {
-      0%, 100% { transform: translate(-50%, -50%) translateY(0px) rotate(-2deg); }
-      50% { transform: translate(-50%, -50%) translateY(-6px) rotate(2deg); }
+    @keyframes classmateDrift {
+      0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+      50% { transform: translate(-50%, -50%) translateY(-7px); }
     }
 
     @keyframes scoreFloatUp {
@@ -52,53 +52,53 @@
     }
 
     @keyframes beamFlow {
-      to { stroke-dashoffset: -24; }
+      to { stroke-dashoffset: -30; }
     }
 
-    .animate-cloud { animation: cloudFloat 7s ease-in-out infinite; }
-    .animate-pop { animation: bouncePop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+    .animate-cloud { animation: cloudDrift 8s ease-in-out infinite; }
+    .animate-pop { animation: bouncePop 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
     .animate-score-pop { animation: scoreFloatUp 1.1s ease-out forwards; }
 
-    /* Glossy 3D Buttons */
+    /* Fluid 3D Buttons */
     .btn-toy-green {
       background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
-      box-shadow: 0 6px 0 #14532d, 0 12px 24px rgba(22, 163, 74, 0.35);
-      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      box-shadow: 0 5px 0 #14532d, 0 10px 20px rgba(22, 163, 74, 0.25);
+      transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.16s ease;
     }
     .btn-toy-green:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 8px 0 #14532d, 0 16px 28px rgba(22, 163, 74, 0.45);
+      box-shadow: 0 7px 0 #14532d, 0 14px 24px rgba(22, 163, 74, 0.35);
     }
     .btn-toy-green:active:not(:disabled) {
-      transform: translateY(4px);
+      transform: translateY(3px);
       box-shadow: 0 2px 0 #14532d;
     }
 
-    /* Sunny Classroom Playground Yard */
+    /* Clean Classroom Yard */
     .classroom-yard {
       background:
-        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.7) 0%, transparent 26%),
-        radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.6) 0%, transparent 24%),
-        linear-gradient(180deg, #e0f2fe 0%, #dcfce7 35%, #86efac 100%);
+        radial-gradient(circle at 20% 25%, rgba(255, 255, 255, 0.75) 0%, transparent 28%),
+        radial-gradient(circle at 82% 20%, rgba(255, 255, 255, 0.65) 0%, transparent 25%),
+        linear-gradient(180deg, #e0f2fe 0%, #dcfce7 36%, #86efac 100%);
       border: 4px solid #ffffff;
-      box-shadow: 0 16px 34px -10px rgba(15, 23, 42, 0.18), inset 0 2px 12px rgba(255, 255, 255, 0.85);
+      box-shadow: 0 14px 30px -10px rgba(15, 23, 42, 0.16), inset 0 2px 12px rgba(255, 255, 255, 0.85);
     }
 
     .mate-node {
       position: absolute;
       transform: translate(-50%, -50%);
-      transition: left 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: left 0.55s cubic-bezier(0.22, 1, 0.36, 1), top 0.55s cubic-bezier(0.22, 1, 0.36, 1);
       cursor: pointer;
       z-index: 15;
     }
 
     .mate-node:hover {
       z-index: 25;
-      filter: brightness(1.06) drop-shadow(0 8px 14px rgba(0, 0, 0, 0.18));
+      filter: brightness(1.05);
     }
 
     .mate-bob {
-      animation: classmateBob 2.7s ease-in-out infinite;
+      animation: classmateDrift 3.2s ease-in-out infinite;
     }
 
     .me-node {
@@ -110,8 +110,8 @@
     }
 
     .duo-beam {
-      stroke-dasharray: 9 5;
-      animation: beamFlow 0.65s linear infinite;
+      stroke-dasharray: 10 5;
+      animation: beamFlow 0.7s linear infinite;
     }
 
     #confetti-canvas {
@@ -126,10 +126,12 @@
 </head>
 <body class="flex flex-col justify-between relative">
 
-  <!-- Decorative Clouds -->
-  <div class="pointer-events-none fixed inset-0 overflow-hidden z-0 opacity-75">
-    <div class="animate-cloud absolute top-6 left-5 text-5xl">☁️</div>
-    <div class="animate-cloud absolute top-14 right-8 text-5xl" style="animation-delay: 2s;">☁️</div>
+  <!-- Sky Clouds & Meadow Illustrations -->
+  <div class="pointer-events-none fixed inset-0 overflow-hidden z-0 opacity-80">
+    <div class="animate-cloud absolute top-5 left-5 text-5xl">☁️</div>
+    <div class="animate-cloud absolute top-12 right-8 text-4xl" style="animation-delay: 2s;">☁️</div>
+    <div class="animate-cloud absolute bottom-8 left-6 text-4xl" style="animation-delay: 4s;">🌼</div>
+    <div class="animate-cloud absolute bottom-6 right-8 text-4xl" style="animation-delay: 1.5s;">🌻</div>
   </div>
 
   <!-- Confetti Canvas -->
@@ -138,7 +140,7 @@
   <!-- Top Student HUD (Visible once joined) -->
   <header id="student-hud" class="hidden relative z-20 w-full max-w-2xl mx-auto px-3 pt-3 pb-1 flex items-center justify-between gap-2">
     <!-- Avatar & Name -->
-    <div class="flex items-center gap-2.5 bg-white/95 px-3 py-1.5 rounded-2xl border-2 border-white shadow-sm">
+    <div class="flex items-center gap-2 bg-white/95 px-3 py-1.5 rounded-2xl border-2 border-white shadow-xs">
       <span id="hud-avatar" class="text-2xl sm:text-3xl">🦊</span>
       <div>
         <div id="hud-name" class="font-bubbly font-bold text-slate-800 text-sm sm:text-base leading-none">Player</div>
@@ -146,16 +148,22 @@
       </div>
     </div>
 
-    <!-- Active Partner Status Pill -->
-    <div id="hud-partner-pill" class="px-3 py-1.5 rounded-2xl bg-sky-500 text-white border-2 border-white shadow-sm font-bubbly font-bold text-xs sm:text-sm">
+    <!-- Active Status Pill -->
+    <div id="hud-partner-pill" class="px-3 py-1.5 rounded-2xl bg-sky-500 text-white border-2 border-white shadow-xs font-bubbly font-bold text-xs sm:text-sm">
       🧍 SOLO
     </div>
 
-    <!-- Live Score Pill -->
-    <div class="relative bg-amber-300 border-2 border-white px-3.5 py-1.5 rounded-2xl shadow-sm font-bubbly font-bold text-slate-900 text-sm sm:text-base flex items-center gap-1">
-      <span>⭐</span>
-      <span id="hud-score">0</span>
-      <span id="hud-score-popup" class="hidden absolute -bottom-7 right-1 font-bubbly font-bold text-emerald-600 text-lg pointer-events-none">+140!</span>
+    <!-- Live Score + Exit Button -->
+    <div class="flex items-center gap-1.5">
+      <div class="relative bg-amber-300 border-2 border-white px-3 py-1.5 rounded-2xl shadow-xs font-bubbly font-bold text-slate-900 text-sm sm:text-base flex items-center gap-1">
+        <span>⭐</span>
+        <span id="hud-score">0</span>
+        <span id="hud-score-popup" class="hidden absolute -bottom-7 right-1 font-bubbly font-bold text-emerald-600 text-lg pointer-events-none">+140!</span>
+      </div>
+
+      <button onclick="exitClass()" class="bg-white/95 hover:bg-rose-50 text-rose-600 border-2 border-white px-2.5 py-1.5 rounded-2xl shadow-xs font-bubbly font-bold text-xs sm:text-sm cursor-pointer" title="Leave Class">
+        🚪 Exit
+      </button>
     </div>
   </header>
 
@@ -163,18 +171,15 @@
   <main class="relative z-10 flex-1 w-full max-w-2xl mx-auto px-3 sm:px-4 py-2 flex flex-col justify-center">
 
     <!-- =====================================================================
-         SCREEN 1: ZERO-FRICTION JOIN FORM
+         SCREEN 1: CLEAN JOIN FORM
     ====================================================================== -->
-    <section id="view-join" class="animate-pop bg-white/95 backdrop-blur-md rounded-[2.2rem] border-4 border-white shadow-2xl p-6 sm:p-8 text-center">
-      <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold uppercase tracking-wider mb-2">
-        <span>🎈</span> Classroom Game
-      </div>
-
-      <h1 class="font-bubbly text-4xl sm:text-5xl font-bold text-slate-800 mb-4">
+    <section id="view-join" class="animate-pop bg-white/95 backdrop-blur-md rounded-[2.2rem] border-4 border-white shadow-xl p-6 sm:p-8 text-center">
+      <div class="text-5xl mb-2">🎈</div>
+      <h1 class="font-bubbly text-4xl sm:text-5xl font-bold text-slate-800 mb-5">
         <span class="text-sky-500">Solo</span> or <span class="text-amber-500">Duo</span>?
       </h1>
 
-      <!-- Room Code Input (Auto-filled from ?room=XXXX) -->
+      <!-- Room Code Input -->
       <div class="max-w-xs mx-auto mb-4">
         <label for="input-room" class="block text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-1">
           Room Code
@@ -183,6 +188,7 @@
           id="input-room"
           type="text"
           maxlength="4"
+          autocomplete="off"
           placeholder="CODE"
           class="w-full py-2.5 px-4 rounded-2xl bg-indigo-50 border-2 border-indigo-200 font-bubbly font-bold text-2xl tracking-[0.25em] text-center uppercase text-indigo-700 focus:outline-none focus:border-indigo-500"
         />
@@ -197,12 +203,13 @@
           id="input-name"
           type="text"
           maxlength="14"
-          placeholder="Enter your name..."
+          autocomplete="off"
+          placeholder="Type your name..."
           class="w-full py-3 px-4 rounded-2xl bg-slate-50 border-2 border-slate-200 font-bubbly font-bold text-xl text-center text-slate-800 focus:outline-none focus:border-emerald-500"
         />
       </div>
 
-      <!-- Cute Avatar Picker -->
+      <!-- Buddy Picker -->
       <div class="mb-6">
         <div class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2">
           Pick Your Buddy
@@ -211,56 +218,52 @@
       </div>
 
       <div id="join-error" class="hidden mb-4 p-3 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-700 text-xs font-extrabold">
-        Room not found! Check the 4-letter code on your teacher's screen.
+        Room not found! Check the 4-letter code.
       </div>
 
       <button id="btn-join" onclick="joinRoom()" class="btn-toy-green w-full max-w-xs mx-auto py-4 rounded-2xl text-white font-bubbly font-bold text-2xl cursor-pointer flex items-center justify-center gap-2">
-        <span>🚀</span> JOIN CLASS!
+        <span>🚀</span> JOIN
       </button>
     </section>
 
     <!-- =====================================================================
          SCREEN 2: WAITING IN LOBBY
     ====================================================================== -->
-    <section id="view-lobby" class="hidden animate-pop bg-white/95 backdrop-blur-md rounded-[2.2rem] border-4 border-white shadow-2xl p-8 text-center">
+    <section id="view-lobby" class="hidden animate-pop bg-white/95 backdrop-blur-md rounded-[2.2rem] border-4 border-white shadow-xl p-8 text-center">
       <div id="lobby-my-avatar" class="w-24 h-24 mx-auto mb-3 rounded-3xl bg-sky-100 border-4 border-sky-300 flex items-center justify-center text-6xl shadow-inner animate-bounce">
         🦊
       </div>
-      <h2 class="font-bubbly text-3xl font-bold text-slate-800 mb-1">You're In!</h2>
-      <p class="text-slate-500 font-extrabold text-sm mb-5">
-        Watch your teacher's screen — starting soon!
-      </p>
+      <h2 class="font-bubbly text-3xl font-bold text-slate-800 mb-2">You're In!</h2>
 
-      <!-- Live Classmates Pills -->
-      <div id="lobby-mates-list" class="flex flex-wrap items-center justify-center gap-2 mb-4"></div>
+      <div id="lobby-mates-list" class="flex flex-wrap items-center justify-center gap-2 mb-5"></div>
 
       <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 font-extrabold text-xs uppercase tracking-wider">
         <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></span>
-        Ready for Round 1...
+        Starting soon...
       </div>
     </section>
 
     <!-- =====================================================================
-         SCREEN 3: ACTIVE 5-SECOND PLAYGROUND ARENA
+         SCREEN 3: ACTIVE 10-SECOND PLAYGROUND ARENA
     ====================================================================== -->
     <section id="view-play" class="hidden flex-col gap-3">
-      <!-- Situation Card + 5s Timer -->
-      <div class="bg-white/95 backdrop-blur rounded-3xl border-4 border-white shadow-xl p-4">
+      <!-- Situation Card + 10s Timer -->
+      <div class="bg-white/95 backdrop-blur rounded-3xl border-4 border-white shadow-lg p-4">
         <div class="flex items-center justify-between gap-2 mb-2">
-          <span id="play-round-badge" class="px-3 py-0.5 rounded-full bg-indigo-600 text-white font-bubbly font-bold text-xs">
-            Round 1 of 6
+          <span id="play-round-badge" class="px-3 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bubbly font-bold text-xs">
+            Round 1 / 6
           </span>
           <span id="play-timer-text" class="font-bubbly font-bold text-rose-600 text-xl">
-            ⏱️ 5s
+            ⏱️ 10s
           </span>
         </div>
 
-        <!-- Animated 5-Second Countdown Bar -->
+        <!-- Animated 10-Second Countdown Bar -->
         <div class="w-full h-3.5 bg-slate-200 rounded-full overflow-hidden mb-3">
           <div id="play-timer-bar" class="h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-rose-500 transition-all duration-1000 ease-linear" style="width: 100%;"></div>
         </div>
 
-        <!-- Big Visual Situation -->
+        <!-- Situation -->
         <div class="flex items-center gap-3.5 bg-slate-50 rounded-2xl p-3 border border-slate-100">
           <span id="play-emoji" class="text-4xl sm:text-5xl shrink-0">📄</span>
           <h2 id="play-situation" class="font-bubbly font-bold text-slate-800 text-xl sm:text-2xl leading-snug">
@@ -270,56 +273,53 @@
       </div>
 
       <!-- Interactive Scattered Classmates Yard -->
-      <div class="classroom-yard relative w-full h-[340px] sm:h-[380px] rounded-[2rem] overflow-hidden">
-        <!-- Clear Visual Instruction Pill -->
+      <div class="classroom-yard relative w-full h-[350px] sm:h-[390px] rounded-[2rem] overflow-hidden">
+        <!-- Clear Tap Hint -->
         <div class="absolute top-2.5 left-1/2 -translate-x-1/2 z-30 w-[94%] text-center">
-          <span id="yard-instruction" class="inline-block bg-white/95 border-2 border-sky-200 px-3.5 py-1 rounded-full text-xs sm:text-sm font-extrabold text-slate-700 shadow-xs">
+          <span id="yard-instruction" class="inline-block bg-white/95 border-2 border-sky-100 px-3.5 py-1 rounded-full text-xs sm:text-sm font-extrabold text-slate-700 shadow-2xs">
             👆 Tap a classmate for <span class="text-amber-600">DUO</span> — or stay <span class="text-sky-600">SOLO</span>!
           </span>
         </div>
 
         <!-- Glowing Tether Beam SVG -->
         <svg class="pointer-events-none absolute inset-0 w-full h-full z-10">
-          <line id="beam-bg" x1="50%" y1="56%" x2="65%" y2="56%" stroke="#ffffff" stroke-width="10" stroke-linecap="round" class="hidden" />
-          <line id="beam-fg" x1="50%" y1="56%" x2="65%" y2="56%" stroke="#f59e0b" stroke-width="5" stroke-linecap="round" class="duo-beam hidden" />
+          <line id="beam-bg" x1="50%" y1="56%" x2="66%" y2="56%" stroke="#ffffff" stroke-width="10" stroke-linecap="round" class="hidden" />
+          <line id="beam-fg" x1="50%" y1="56%" x2="66%" y2="56%" stroke="#f59e0b" stroke-width="5" stroke-linecap="round" class="duo-beam hidden" />
         </svg>
 
-        <!-- Center Student Avatar (Tap to reset to Solo) -->
+        <!-- Center Student Avatar -->
         <div onclick="setSolo()" class="me-node flex flex-col items-center cursor-pointer" title="Tap to go Solo">
           <div id="me-status-tag" class="mb-1 px-2.5 py-0.5 rounded-full bg-sky-500 text-white text-[10px] font-extrabold uppercase shadow border-2 border-white">
             🧍 SOLO
           </div>
-          <div id="me-avatar-box" class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-sky-400 border-4 border-white shadow-lg flex items-center justify-center text-4xl sm:text-5xl">
+          <div id="me-avatar-box" class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-sky-400 border-4 border-white shadow-md flex items-center justify-center text-4xl sm:text-5xl">
             🦊
           </div>
-          <div id="me-name-tag" class="mt-1 px-2.5 py-0.5 rounded-full bg-slate-900 text-white font-bubbly font-bold text-xs shadow">
+          <div id="me-name-tag" class="mt-1 px-2.5 py-0.5 rounded-full bg-slate-800 text-white font-bubbly font-bold text-xs shadow">
             You
           </div>
         </div>
 
-        <!-- Scattered Classmates Container -->
+        <!-- Scattered Real Classmates Container -->
         <div id="yard-classmates" class="absolute inset-0"></div>
 
-        <!-- Bottom Status Pill -->
+        <!-- Bottom Action Pill -->
         <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 w-[92%] text-center">
           <button id="btn-back-solo" onclick="setSolo()" class="hidden mx-auto px-5 py-2 rounded-full bg-white hover:bg-rose-50 text-rose-600 border-2 border-rose-300 font-bubbly font-bold text-sm shadow-md cursor-pointer">
             ✖ Unpair (Go Back to SOLO)
           </button>
           <div id="solo-ready-pill" class="inline-block px-5 py-2 rounded-full bg-sky-500 text-white border-2 border-white font-bubbly font-bold text-sm shadow-md">
-            🧍 SOLO Selected (Just Me!)
+            🧍 SOLO Selected
           </div>
         </div>
 
-        <!-- Time's Up Lock Overlay -->
+        <!-- Time's Up Overlay -->
         <div id="timesup-overlay" class="hidden absolute inset-0 z-40 bg-slate-900/75 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center text-white animate-pop">
           <div class="text-6xl mb-2">⏰</div>
-          <h3 class="font-bubbly text-3xl font-bold mb-1">Time's Up!</h3>
-          <div id="locked-summary-pill" class="px-4 py-1.5 rounded-full bg-amber-400 text-slate-900 font-extrabold text-sm mb-3">
+          <h3 class="font-bubbly text-3xl font-bold mb-2">Time's Up!</h3>
+          <div id="locked-summary-pill" class="px-4 py-1.5 rounded-full bg-amber-400 text-slate-900 font-extrabold text-sm">
             Locked: SOLO 🧍
           </div>
-          <p class="text-sm font-bold text-sky-200">
-            👀 Look at your teacher's screen for the answer!
-          </p>
         </div>
       </div>
     </section>
@@ -327,25 +327,24 @@
     <!-- =====================================================================
          SCREEN 4: ROUND REVEAL & SCORE FEEDBACK
     ====================================================================== -->
-    <section id="view-reveal" class="hidden animate-pop bg-white/95 backdrop-blur-md rounded-[2.2rem] border-4 border-white shadow-2xl p-7 text-center">
+    <section id="view-reveal" class="hidden animate-pop bg-white/95 backdrop-blur-md rounded-[2.2rem] border-4 border-white shadow-xl p-7 text-center">
       <div id="rev-icon" class="w-24 h-24 mx-auto mb-3 rounded-3xl bg-emerald-100 border-4 border-emerald-300 flex items-center justify-center text-6xl shadow-inner">
         🎉
       </div>
 
       <h2 id="rev-title" class="font-bubbly text-3xl sm:text-4xl font-bold text-slate-800 mb-1">
-        Awesome! +140 pts
+        Spot On! +140
       </h2>
       <p id="rev-rank" class="font-bubbly text-lg font-bold text-indigo-600 mb-4">
-        You are #1!
+        Rank #1
       </p>
 
-      <!-- Correct Answer & Partner Recap -->
       <div class="bg-slate-50 border-2 border-slate-200/80 rounded-3xl p-4 mb-4 space-y-2">
         <div id="rev-answer-pill" class="inline-block px-4 py-1 rounded-full bg-sky-500 text-white font-bubbly font-bold text-base">
-          Answer: SOLO 🧍
+          SOLO 🧍
         </div>
         <div id="rev-partner-note" class="text-xs font-extrabold text-slate-500">
-          You stayed SOLO!
+          You went SOLO!
         </div>
         <p id="rev-clue" class="font-bold text-slate-800 text-sm sm:text-base pt-1">
           1 sheet makes an exact copy!
@@ -353,14 +352,14 @@
       </div>
 
       <div class="text-xs font-extrabold uppercase tracking-wider text-slate-400">
-        Waiting for teacher to start next round...
+        Next round starting soon...
       </div>
     </section>
 
     <!-- =====================================================================
-         SCREEN 5: FINAL TROPHY & GUESS THE TOPIC PROMPT
+         SCREEN 5: FINAL TROPHY
     ====================================================================== -->
-    <section id="view-finale" class="hidden animate-pop bg-white/95 backdrop-blur-md rounded-[2.2rem] border-4 border-white shadow-2xl p-7 text-center">
+    <section id="view-finale" class="hidden animate-pop bg-white/95 backdrop-blur-md rounded-[2.2rem] border-4 border-white shadow-xl p-7 text-center">
       <div class="text-6xl mb-2 animate-bounce">🏆</div>
       <h2 class="font-bubbly text-3xl sm:text-4xl font-bold text-slate-800 mb-1">
         Great Job!
@@ -369,12 +368,9 @@
         #1 Place — 780 pts!
       </p>
 
-      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-5 text-white shadow-lg">
-        <div class="text-xs font-extrabold uppercase tracking-widest text-amber-300 mb-1">
-          🕵️‍♀️ Detective Challenge
-        </div>
+      <div class="bg-indigo-600 rounded-3xl p-5 text-white shadow-md">
         <p class="font-bubbly text-xl font-bold leading-snug">
-          Look at the Pattern Board on your teacher's screen — type your guess for today's lesson in the class chat!
+          🕵️‍♀️ Look at the teacher's screen and guess today's lesson topic!
         </p>
       </div>
     </section>
@@ -384,11 +380,8 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // =========================================================================
-    // CLOUD CONFIG (Configured for solo-duo)
-    // =========================================================================
     const MANUAL_FIREBASE_CONFIG = {
       apiKey: "AIzaSyBPOJoMchl2hOWJRrUXMDIzP0r281_Sx90",
       authDomain: "solo-duo.firebaseapp.com",
@@ -409,19 +402,8 @@
     let auth = null;
     let cloudUser = null;
 
-    // =========================================================================
-    // 1. AVATARS & CLASSMATE SCATTER SLOTS
-    // =========================================================================
+    const ROUND_DURATION = 10;
     const AVATARS = ["🦊", "🐼", "🐸", "🦁", "🐨", "🐧", "🦄", "🐙", "🐯", "🐰", "🐶", "🐱"];
-
-    const FALLBACK_MATES = [
-      { id: "bot-1", name: "Maya", avatar: "🐼" },
-      { id: "bot-2", name: "Liam", avatar: "🦁" },
-      { id: "bot-3", name: "Chloe", avatar: "🦄" },
-      { id: "bot-4", name: "Noah", avatar: "🐸" },
-      { id: "bot-5", name: "Sofia", avatar: "🐨" },
-      { id: "bot-6", name: "Lucas", avatar: "🐯" }
-    ];
 
     const YARD_SLOTS = [
       { x: 16, y: 26 }, { x: 35, y: 22 }, { x: 65, y: 22 }, { x: 84, y: 26 },
@@ -429,31 +411,35 @@
       { x: 18, y: 78 }, { x: 36, y: 75 }, { x: 64, y: 75 }, { x: 82, y: 78 }
     ];
 
-    let student = {
-      id: "stu-" + Math.random().toString(36).substring(2, 9),
-      name: "",
-      avatar: "🦊",
-      roomCode: "",
-      score: 0,
-      useCloud: false,
-      unsubRoom: null,
-      unsubPlayers: null,
-      lastCloudPhaseKey: "",
-      latestRoundData: null,
-      peer: null,
-      conn: null,
-      bc: null,
-      roster: [],
-      yardMates: [],
-      partnerId: null,
-      partnerName: null,
-      timeLeft: 5,
-      timerHandle: null,
-      locked: false
-    };
+    function createFreshStudentState() {
+      return {
+        id: cloudUser ? cloudUser.uid : "stu-" + Math.random().toString(36).substring(2, 9),
+        name: "",
+        avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)],
+        roomCode: "",
+        score: 0,
+        joined: false,
+        useCloud: Boolean(cloudUser),
+        unsubRoom: null,
+        unsubPlayers: null,
+        lastCloudPhaseKey: "",
+        peer: null,
+        conn: null,
+        bc: null,
+        roster: [],
+        yardMates: [],
+        partnerId: null,
+        partnerName: null,
+        timeLeft: ROUND_DURATION,
+        timerHandle: null,
+        locked: false
+      };
+    }
+
+    let student = createFreshStudentState();
 
     // =========================================================================
-    // 2. SOUND EFFECTS
+    // SOUND EFFECTS
     // =========================================================================
     let audioCtx = null;
     function ensureAudio() {
@@ -478,7 +464,7 @@
           g.connect(audioCtx.destination);
           o.frequency.setValueAtTime(450, now);
           o.frequency.exponentialRampToValueAtTime(840, now + 0.14);
-          g.gain.setValueAtTime(0.16, now);
+          g.gain.setValueAtTime(0.15, now);
           g.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
           o.start(now);
           o.stop(now + 0.18);
@@ -489,7 +475,7 @@
           o.connect(g);
           g.connect(audioCtx.destination);
           o.frequency.setValueAtTime(620, now);
-          g.gain.setValueAtTime(0.1, now);
+          g.gain.setValueAtTime(0.09, now);
           g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
           o.start(now);
           o.stop(now + 0.09);
@@ -501,7 +487,7 @@
             o.connect(g);
             g.connect(audioCtx.destination);
             o.frequency.setValueAtTime(freq, now + i * 0.08);
-            g.gain.setValueAtTime(0.16, now + i * 0.08);
+            g.gain.setValueAtTime(0.15, now + i * 0.08);
             g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.3);
             o.start(now + i * 0.08);
             o.stop(now + i * 0.08 + 0.32);
@@ -514,7 +500,7 @@
           g.connect(audioCtx.destination);
           o.frequency.setValueAtTime(320, now);
           o.frequency.linearRampToValueAtTime(200, now + 0.3);
-          g.gain.setValueAtTime(0.12, now);
+          g.gain.setValueAtTime(0.11, now);
           g.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
           o.start(now);
           o.stop(now + 0.33);
@@ -523,17 +509,14 @@
     }
 
     // =========================================================================
-    // 3. INITIALIZE JOIN SCREEN & CLOUD AUTH
+    // INITIALIZE & AUTO-CLEANUP ON TAB CLOSE / EXIT
     // =========================================================================
     window.addEventListener("DOMContentLoaded", async () => {
+      // Clear any previous inputs on fresh load
+      document.getElementById("input-name").value = "";
       const params = new URLSearchParams(window.location.search);
       const roomParam = params.get("room");
-      if (roomParam) {
-        document.getElementById("input-room").value = roomParam.trim().toUpperCase();
-      }
-
-      student.avatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
-      renderAvatarPicker();
+      document.getElementById("input-room").value = roomParam ? roomParam.trim().toUpperCase() : "";
 
       if (hasCloudConfig) {
         try {
@@ -557,7 +540,83 @@
           console.warn("Student cloud fallback:", err);
         }
       }
+
+      renderAvatarPicker();
     });
+
+    // Cleanly remove student from Teacher's pool if they close the browser/tab
+    window.addEventListener("beforeunload", () => {
+      cleanupStudentPresence();
+    });
+
+    function cleanupStudentPresence() {
+      if (!student.joined) return;
+      const room = student.roomCode;
+      const sid = student.id;
+
+      if (student.useCloud && cloudUser && room) {
+        const myPlayerRef = doc(db, "artifacts", appId, "public", "data", `players_${room}`, sid);
+        deleteDoc(myPlayerRef).catch(() => {});
+      }
+      if (student.conn && student.conn.open) {
+        try { student.conn.send({ type: "LEAVE", studentId: sid }); } catch (e) {}
+      }
+      if (student.bc) {
+        try { student.bc.postMessage({ type: "LEAVE", studentId: sid }); } catch (e) {}
+      }
+    }
+
+    // Exit button handler: removes from teacher pool & completely resets student screen
+    window.exitClass = async function () {
+      clearInterval(student.timerHandle);
+
+      if (student.unsubRoom) {
+        try { student.unsubRoom(); } catch (e) {}
+      }
+      if (student.unsubPlayers) {
+        try { student.unsubPlayers(); } catch (e) {}
+      }
+
+      if (student.joined && student.useCloud && cloudUser && student.roomCode) {
+        try {
+          const myPlayerRef = doc(db, "artifacts", appId, "public", "data", `players_${student.roomCode}`, student.id);
+          await deleteDoc(myPlayerRef);
+        } catch (e) {}
+      }
+
+      if (student.conn && student.conn.open) {
+        try { student.conn.send({ type: "LEAVE", studentId: student.id }); } catch (e) {}
+      }
+      if (student.bc) {
+        try {
+          student.bc.postMessage({ type: "LEAVE", studentId: student.id });
+          student.bc.close();
+        } catch (e) {}
+      }
+      if (student.peer) {
+        try { student.peer.destroy(); } catch (e) {}
+      }
+
+      // Reset all local student state & form inputs
+      student = createFreshStudentState();
+      document.getElementById("input-name").value = "";
+      document.getElementById("input-room").value = "";
+      document.getElementById("join-error").classList.add("hidden");
+
+      const btn = document.getElementById("btn-join");
+      btn.disabled = false;
+      btn.innerHTML = `<span>🚀</span> JOIN`;
+
+      document.getElementById("student-hud").classList.add("hidden");
+      document.getElementById("student-hud").classList.remove("flex");
+      ["view-lobby", "view-play", "view-reveal", "view-finale"].forEach((id) => {
+        const el = document.getElementById(id);
+        el.classList.add("hidden");
+        el.classList.remove("flex");
+      });
+      document.getElementById("view-join").classList.remove("hidden");
+      renderAvatarPicker();
+    };
 
     function renderAvatarPicker() {
       const grid = document.getElementById("avatar-picker-grid");
@@ -582,7 +641,7 @@
     };
 
     // =========================================================================
-    // 4. CONNECT TO TEACHER HOST (CLOUD FIRST, PEERJS FALLBACK)
+    // JOIN ROOM & SYNC WITH TEACHER
     // =========================================================================
     window.joinRoom = async function () {
       ensureAudio();
@@ -591,12 +650,12 @@
       const errEl = document.getElementById("join-error");
 
       if (room.length !== 4) {
-        errEl.textContent = "Please enter the 4-letter Room Code!";
+        errEl.textContent = "Enter the 4-letter Room Code!";
         errEl.classList.remove("hidden");
         return;
       }
       if (!name) {
-        errEl.textContent = "Please type your name first!";
+        errEl.textContent = "Type your name first!";
         errEl.classList.remove("hidden");
         return;
       }
@@ -609,7 +668,6 @@
       student.roomCode = room;
       student.name = name;
 
-      // CLOUD MODE (100% Firewall-Proof)
       if (student.useCloud && cloudUser) {
         try {
           const roomRef = doc(db, "artifacts", appId, "public", "data", `room_${room}`, "state");
@@ -624,6 +682,7 @@
           await setDoc(myPlayerRef, {
             name: student.name,
             avatar: student.avatar,
+            online: true,
             score: 0,
             choice: "SOLO",
             partnerId: null,
@@ -632,16 +691,11 @@
             joinedAt: Date.now()
           });
 
+          student.joined = true;
           const initialRoom = roomSnap.data();
           student.lastCloudPhaseKey = `${initialRoom.phase}-${initialRoom.roundIndex}-${initialRoom.updatedAt}`;
-          onJoinedSuccess({
-            phase: initialRoom.phase,
-            roundData: initialRoom.roundData,
-            timer: initialRoom.timer || 5,
-            roster: []
-          });
 
-          // Listen to live classmates list
+          // Listen to live classmates list (also updates yard live if someone joins or leaves mid-round!)
           const playersCol = collection(db, "artifacts", appId, "public", "data", `players_${room}`);
           student.unsubPlayers = onSnapshot(
             playersCol,
@@ -649,18 +703,30 @@
               const list = [];
               snap.forEach((d) => {
                 const pData = d.data();
-                list.push({
-                  id: d.id,
-                  name: pData.name,
-                  avatar: pData.avatar,
-                  score: pData.score || 0
-                });
+                if (pData.online !== false) {
+                  list.push({
+                    id: d.id,
+                    name: pData.name,
+                    avatar: pData.avatar,
+                    score: pData.score || 0
+                  });
+                }
               });
               student.roster = list;
               renderLobbyMates();
+              if (!document.getElementById("view-play").classList.contains("hidden")) {
+                syncYardWithRoster();
+              }
             },
             (err) => console.error("Roster sync error:", err)
           );
+
+          onJoinedSuccess({
+            phase: initialRoom.phase,
+            roundData: initialRoom.roundData,
+            timer: initialRoom.timer || ROUND_DURATION,
+            roster: student.roster
+          });
 
           // Listen to live game state transitions from teacher
           student.unsubRoom = onSnapshot(
@@ -671,10 +737,9 @@
               const phaseKey = `${rState.phase}-${rState.roundIndex}-${rState.updatedAt}`;
               if (phaseKey === student.lastCloudPhaseKey) return;
               student.lastCloudPhaseKey = phaseKey;
-              student.latestRoundData = rState.roundData;
 
               if (rState.phase === "playing") {
-                startRoundView(rState.roundData, rState.timer || 5);
+                startRoundView(rState.roundData, rState.timer || ROUND_DURATION);
               } else if (rState.phase === "timesup") {
                 lockRoundInputs();
               } else if (rState.phase === "revealed") {
@@ -712,14 +777,14 @@
         }
       }
 
-      // FALLBACK P2P / LOCAL TAB MODE
+      // Fallback P2P / Local Mode
       let connected = false;
-
       if ("BroadcastChannel" in window) {
         student.bc = new BroadcastChannel(`solo-duo-chan-${room}`);
         student.bc.onmessage = (ev) => {
           if (!connected && ev.data && ev.data.type === "STATE_SYNC") {
             connected = true;
+            student.joined = true;
             onJoinedSuccess(ev.data);
           } else {
             handleServerMessage(ev.data);
@@ -734,10 +799,6 @@
       }
 
       try {
-        if (student.peer) {
-          try { student.peer.destroy(); } catch (e) {}
-        }
-
         student.peer = new Peer({
           debug: 0,
           config: {
@@ -749,7 +810,6 @@
         });
 
         let retryTimer = null;
-
         const attemptConnect = () => {
           if (connected || !student.peer || student.peer.destroyed) return;
           const conn = student.peer.connect(`solo-duo-host-${room}`, { reliable: true });
@@ -767,6 +827,7 @@
           conn.on("data", (data) => {
             if (!connected && data && data.type === "STATE_SYNC") {
               connected = true;
+              student.joined = true;
               clearTimeout(retryTimer);
               onJoinedSuccess(data);
             } else {
@@ -775,22 +836,13 @@
           });
 
           conn.on("error", () => {
-            if (!connected) {
-              retryTimer = setTimeout(attemptConnect, 1500);
-            }
+            if (!connected) retryTimer = setTimeout(attemptConnect, 1500);
           });
         };
 
-        student.peer.on("open", () => {
-          attemptConnect();
-        });
-
-        student.peer.on("error", (err) => {
-          if (!connected && err && err.type === "peer-unavailable") {
-            retryTimer = setTimeout(attemptConnect, 1500);
-          } else if (!connected) {
-            onJoinFailed();
-          }
+        student.peer.on("open", () => attemptConnect());
+        student.peer.on("error", () => {
+          if (!connected) retryTimer = setTimeout(attemptConnect, 1500);
         });
 
         setTimeout(() => {
@@ -805,9 +857,9 @@
     function onJoinFailed() {
       const btn = document.getElementById("btn-join");
       btn.disabled = false;
-      btn.innerHTML = `<span>🚀</span> JOIN CLASS!`;
+      btn.innerHTML = `<span>🚀</span> JOIN`;
       const errEl = document.getElementById("join-error");
-      errEl.textContent = `Could not find Room "${student.roomCode}". Check your teacher's screen and try again!`;
+      errEl.textContent = `Room "${student.roomCode}" not found. Check the code and try again!`;
       errEl.classList.remove("hidden");
     }
 
@@ -821,9 +873,7 @@
             partnerName: payload.partnerName,
             timeLeft: payload.timeLeft
           });
-        } catch (e) {
-          console.error("Cloud pair update failed:", e);
-        }
+        } catch (e) {}
         return;
       }
 
@@ -839,9 +889,11 @@
       playTone("pop");
       const btn = document.getElementById("btn-join");
       btn.disabled = false;
-      btn.innerHTML = `<span>🚀</span> JOIN CLASS!`;
+      btn.innerHTML = `<span>🚀</span> JOIN`;
 
-      student.roster = syncData.roster || [];
+      if (syncData.roster && syncData.roster.length > 0) {
+        student.roster = syncData.roster;
+      }
 
       document.getElementById("view-join").classList.add("hidden");
       document.getElementById("student-hud").classList.remove("hidden");
@@ -857,7 +909,7 @@
       document.getElementById("me-name-tag").textContent = student.name;
 
       if (syncData.phase === "playing") {
-        startRoundView(syncData.roundData, syncData.timer || 5);
+        startRoundView(syncData.roundData, syncData.timer || ROUND_DURATION);
       } else {
         showScreen("lobby");
         renderLobbyMates();
@@ -881,11 +933,14 @@
       if (msg.type === "ROSTER_SYNC") {
         student.roster = msg.roster || [];
         renderLobbyMates();
+        if (!document.getElementById("view-play").classList.contains("hidden")) {
+          syncYardWithRoster();
+        }
       }
 
       if (msg.type === "START_ROUND") {
         if (msg.roster) student.roster = msg.roster;
-        startRoundView(msg.roundData, msg.timer || 5);
+        startRoundView(msg.roundData, msg.timer || ROUND_DURATION);
       }
 
       if (msg.type === "TIMES_UP") {
@@ -925,9 +980,41 @@
     }
 
     // =========================================================================
-    // 5. 5-SECOND INTERACTIVE PLAYGROUND (CLICK CLASSMATE = DUO, NONE = SOLO)
+    // 10-SECOND PLAYGROUND (ONLY REAL JOINED CLASSMATES)
     // =========================================================================
-    function startRoundView(roundObj, seconds = 5) {
+    function syncYardWithRoster() {
+      const realPeers = student.roster.filter((p) => p.id !== student.id);
+      const existingMap = new Map(student.yardMates.map((m) => [m.id, m]));
+      const usedSlots = new Set(student.yardMates.map((m) => m.slotIdx));
+
+      student.yardMates = realPeers.slice(0, 10).map((peer) => {
+        if (existingMap.has(peer.id)) {
+          const prev = existingMap.get(peer.id);
+          return { ...prev, name: peer.name, avatar: peer.avatar };
+        }
+        let slotIdx = 0;
+        while (usedSlots.has(slotIdx) && slotIdx < YARD_SLOTS.length - 1) slotIdx++;
+        usedSlots.add(slotIdx);
+        return {
+          ...peer,
+          slotIdx,
+          homeX: YARD_SLOTS[slotIdx].x,
+          homeY: YARD_SLOTS[slotIdx].y,
+          delay: (slotIdx * 0.25).toFixed(2)
+        };
+      });
+
+      // If our selected partner left the game, reset to SOLO
+      if (student.partnerId && !student.yardMates.some((m) => m.id === student.partnerId)) {
+        student.partnerId = null;
+        student.partnerName = null;
+        updateChoiceVisuals();
+      }
+
+      renderYardClassmates();
+    }
+
+    function startRoundView(roundObj, seconds = ROUND_DURATION) {
       clearInterval(student.timerHandle);
       student.locked = false;
       student.partnerId = null;
@@ -938,7 +1025,7 @@
       playTone("pop");
 
       document.getElementById("timesup-overlay").classList.add("hidden");
-      document.getElementById("play-round-badge").textContent = `Round ${roundObj.round} of 6`;
+      document.getElementById("play-round-badge").textContent = `Round ${roundObj.round} / 6`;
       document.getElementById("play-emoji").textContent = roundObj.emoji;
       document.getElementById("play-situation").textContent = roundObj.situation;
       document.getElementById("play-timer-text").textContent = `⏱️ ${seconds}s`;
@@ -950,17 +1037,10 @@
       bar.style.transition = "width 1s linear";
 
       const realPeers = student.roster.filter((p) => p.id !== student.id);
-      const pool = [...realPeers];
-      for (const fb of FALLBACK_MATES) {
-        if (pool.length >= 6) break;
-        if (!pool.some((p) => p.name.toLowerCase() === fb.name.toLowerCase())) {
-          pool.push(fb);
-        }
-      }
-
       const slots = [...YARD_SLOTS].sort(() => Math.random() - 0.5);
-      student.yardMates = pool.slice(0, 8).map((m, i) => ({
+      student.yardMates = realPeers.slice(0, 10).map((m, i) => ({
         ...m,
+        slotIdx: i,
         homeX: slots[i % slots.length].x,
         homeY: slots[i % slots.length].y,
         delay: (i * 0.25).toFixed(2)
@@ -1012,7 +1092,7 @@
 
         btn.innerHTML = `
           <div class="mate-bob flex flex-col items-center" style="animation-delay: ${mate.delay}s">
-            ${isPaired ? `<span class="mb-0.5 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-extrabold shadow border border-white">🤝 DUO!</span>` : ""}
+            ${isPaired ? `<span class="mb-0.5 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-extrabold shadow border border-white">🤝 DUO</span>` : ""}
             <div class="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl ${isPaired ? "bg-amber-100 border-amber-400" : "bg-white border-sky-300"} border-3 shadow-md flex items-center justify-center text-3xl">
               ${mate.avatar}
             </div>
@@ -1077,7 +1157,7 @@
 
       if (student.partnerId) {
         hudPill.textContent = `🤝 DUO: ${student.partnerName}`;
-        hudPill.className = "px-3 py-1.5 rounded-2xl bg-amber-500 text-white border-2 border-white shadow-sm font-bubbly font-bold text-xs sm:text-sm";
+        hudPill.className = "px-3 py-1.5 rounded-2xl bg-amber-500 text-white border-2 border-white shadow-xs font-bubbly font-bold text-xs sm:text-sm";
 
         meTag.textContent = "🤝 DUO";
         meTag.className = "mb-1 px-2.5 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-extrabold uppercase shadow border-2 border-white";
@@ -1089,7 +1169,7 @@
         hint.innerHTML = `🤝 Paired with <span class="text-amber-600">${escapeHTML(student.partnerName)}</span>!`;
       } else {
         hudPill.textContent = "🧍 SOLO";
-        hudPill.className = "px-3 py-1.5 rounded-2xl bg-sky-500 text-white border-2 border-white shadow-sm font-bubbly font-bold text-xs sm:text-sm";
+        hudPill.className = "px-3 py-1.5 rounded-2xl bg-sky-500 text-white border-2 border-white shadow-xs font-bubbly font-bold text-xs sm:text-sm";
 
         meTag.textContent = "🧍 SOLO";
         meTag.className = "mb-1 px-2.5 py-0.5 rounded-full bg-sky-500 text-white text-[10px] font-extrabold uppercase shadow border-2 border-white";
@@ -1098,7 +1178,9 @@
         beamFg.classList.add("hidden");
         btnBackSolo.classList.add("hidden");
         soloPill.classList.remove("hidden");
-        hint.innerHTML = `👆 Tap a classmate for <span class="text-amber-600">DUO</span> — or stay <span class="text-sky-600">SOLO</span>!`;
+        hint.innerHTML = student.yardMates.length > 0
+          ? `👆 Tap a classmate for <span class="text-amber-600">DUO</span> — or stay <span class="text-sky-600">SOLO</span>!`
+          : `🧍 Staying <span class="text-sky-600">SOLO</span>!`;
       }
     }
 
@@ -1113,15 +1195,15 @@
 
       if (student.partnerId) {
         summary.textContent = `Locked: DUO with ${student.partnerName} 🤝`;
-        summary.className = "px-4 py-1.5 rounded-full bg-amber-400 text-slate-900 font-extrabold text-sm mb-3";
+        summary.className = "px-4 py-1.5 rounded-full bg-amber-400 text-slate-900 font-extrabold text-sm";
       } else {
-        summary.textContent = "Locked: SOLO (Just Me!) 🧍";
-        summary.className = "px-4 py-1.5 rounded-full bg-sky-400 text-slate-950 font-extrabold text-sm mb-3";
+        summary.textContent = "Locked: SOLO 🧍";
+        summary.className = "px-4 py-1.5 rounded-full bg-sky-400 text-slate-950 font-extrabold text-sm";
       }
     }
 
     // =========================================================================
-    // 6. REVEAL FEEDBACK & SCORE POPUP
+    // REVEAL FEEDBACK
     // =========================================================================
     function renderRevealView(roundObj, outcome) {
       showScreen("reveal");
@@ -1156,7 +1238,7 @@
         launchConfetti(55);
         iconEl.textContent = "🎉";
         iconEl.className = "w-24 h-24 mx-auto mb-3 rounded-3xl bg-emerald-100 border-4 border-emerald-300 flex items-center justify-center text-6xl shadow-inner";
-        titleEl.textContent = `Spot On! +${pts} pts`;
+        titleEl.textContent = `Spot On! +${pts}`;
       } else {
         playTone("oops");
         iconEl.textContent = "💡";
@@ -1165,14 +1247,14 @@
       }
 
       rankEl.textContent = outcome && outcome.rank
-        ? `Current Rank: #${outcome.rank}`
-        : `Total Score: ${student.score} pts`;
+        ? `Rank #${outcome.rank}`
+        : `Score: ${student.score}`;
 
       if (roundObj.answer === "SOLO") {
-        ansPill.textContent = "Correct Answer: SOLO 🧍";
+        ansPill.textContent = "Answer: SOLO 🧍";
         ansPill.className = "inline-block px-4 py-1 rounded-full bg-sky-500 text-white font-bubbly font-bold text-base";
       } else {
-        ansPill.textContent = "Correct Answer: DUO 🤝";
+        ansPill.textContent = "Answer: DUO 🤝";
         ansPill.className = "inline-block px-4 py-1 rounded-full bg-amber-500 text-white font-bubbly font-bold text-base";
       }
 
@@ -1183,9 +1265,6 @@
       document.getElementById("rev-clue").textContent = roundObj.clue;
     }
 
-    // =========================================================================
-    // 7. UTILITIES & CONFETTI
-    // =========================================================================
     function escapeHTML(str) {
       return String(str).replace(/[&<>"']/g, (m) => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
