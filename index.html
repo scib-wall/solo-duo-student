@@ -435,6 +435,7 @@
         yardMates: [],
         partnerId: null,
         partnerName: null,
+        pairUpdatedAt: 0,
         timeLeft: ROUND_DURATION,
         timerHandle: null,
         locked: false
@@ -697,6 +698,7 @@
             choice: "SOLO",
             partnerId: null,
             partnerName: null,
+            pairUpdatedAt: 0,
             timeLeft: 0,
             joinedAt: Date.now()
           });
@@ -723,7 +725,8 @@
                       score: pData.score || 0,
                       choice: pData.choice || "SOLO",
                       partnerId: pData.partnerId || null,
-                      partnerName: pData.partnerName || null
+                      partnerName: pData.partnerName || null,
+                      pairUpdatedAt: pData.pairUpdatedAt || 0
                     });
                     if (d.id === student.id) myDocData = pData;
                   }
@@ -734,15 +737,20 @@
                 // Two-way partner sync: check if another student picked me OR broke our pair!
                 const playView = document.getElementById("view-play");
                 if (playView && !playView.classList.contains("hidden") && !student.locked) {
+                  // Ensure yardMates contains all current peers BEFORE updating partner visuals
+                  syncYardWithRoster();
+
                   if (myDocData) {
                     const remotePartnerId = myDocData.partnerId || null;
                     const remotePartnerName = myDocData.partnerName || null;
+                    const remoteTs = myDocData.pairUpdatedAt || 0;
 
-                    if (remotePartnerId !== student.partnerId) {
+                    if (remotePartnerId !== student.partnerId && remoteTs >= (student.pairUpdatedAt || 0)) {
                       const prevName = student.partnerName;
                       const wasPickedBySomeone = Boolean(remotePartnerId);
                       student.partnerId = remotePartnerId;
                       student.partnerName = remotePartnerName;
+                      student.pairUpdatedAt = remoteTs;
 
                       if (wasPickedBySomeone) {
                         playTone("pair");
@@ -751,10 +759,10 @@
                         playTone("pop");
                         showIncomingBanner(prevName ? `💔 ${prevName} unpaired — back to SOLO!` : `🧍 Back to SOLO!`);
                       }
+                      renderYardClassmates();
                       updateChoiceVisuals();
                     }
                   }
-                  syncYardWithRoster();
                 }
               } catch (snapErr) {
                 console.warn("Roster snapshot error:", snapErr);
@@ -912,25 +920,28 @@
     async function sendToHost(payload) {
       if (student.useCloud && cloudUser && payload.type === "PAIR_UPDATE") {
         try {
+          const nowTs = payload.pairUpdatedAt || Date.now();
           const prevPartnerId = payload.prevPartnerId || null;
           const myPlayerRef = doc(db, "artifacts", appId, "public", "data", `players_${student.roomCode}`, student.id);
 
           // 1. Update my own document
-          await updateDoc(myPlayerRef, {
+          await setDoc(myPlayerRef, {
             choice: payload.choice,
             partnerId: payload.partnerId,
             partnerName: payload.partnerName,
+            pairUpdatedAt: nowTs,
             timeLeft: payload.timeLeft
-          });
+          }, { merge: true });
 
           // 2. If I had a previous partner and switched/unpaired, set them back to SOLO
           if (prevPartnerId && prevPartnerId !== payload.partnerId) {
             const oldPartnerRef = doc(db, "artifacts", appId, "public", "data", `players_${student.roomCode}`, prevPartnerId);
-            await updateDoc(oldPartnerRef, {
+            await setDoc(oldPartnerRef, {
               choice: "SOLO",
               partnerId: null,
-              partnerName: null
-            }).catch(() => {});
+              partnerName: null,
+              pairUpdatedAt: nowTs
+            }, { merge: true }).catch(() => {});
           }
 
           // 3. If I picked a new partner, link them to me two-way (and release their old partner if any)
@@ -938,20 +949,22 @@
             const targetMate = student.roster.find((m) => m.id === payload.partnerId);
             if (targetMate && targetMate.partnerId && targetMate.partnerId !== student.id) {
               const displacedRef = doc(db, "artifacts", appId, "public", "data", `players_${student.roomCode}`, targetMate.partnerId);
-              await updateDoc(displacedRef, {
+              await setDoc(displacedRef, {
                 choice: "SOLO",
                 partnerId: null,
-                partnerName: null
-              }).catch(() => {});
+                partnerName: null,
+                pairUpdatedAt: nowTs
+              }, { merge: true }).catch(() => {});
             }
 
             const newPartnerRef = doc(db, "artifacts", appId, "public", "data", `players_${student.roomCode}`, payload.partnerId);
-            await updateDoc(newPartnerRef, {
+            await setDoc(newPartnerRef, {
               choice: "DUO",
               partnerId: student.id,
               partnerName: student.name,
+              pairUpdatedAt: nowTs,
               timeLeft: payload.timeLeft
-            }).catch(() => {});
+            }, { merge: true }).catch(() => {});
           }
         } catch (e) {}
         return;
@@ -1124,6 +1137,7 @@
       student.locked = false;
       student.partnerId = null;
       student.partnerName = null;
+      student.pairUpdatedAt = Date.now();
       student.timeLeft = seconds;
 
       showScreen("play");
@@ -1241,8 +1255,10 @@
       }
 
       const prevPartnerId = student.partnerId;
+      const nowTs = Date.now();
       student.partnerId = mate.id;
       student.partnerName = mate.name;
+      student.pairUpdatedAt = nowTs;
       playTone("pair");
       renderYardClassmates();
       updateChoiceVisuals();
@@ -1254,6 +1270,7 @@
         partnerId: mate.id,
         partnerName: mate.name,
         prevPartnerId,
+        pairUpdatedAt: nowTs,
         timeLeft: student.timeLeft
       });
     }
@@ -1261,9 +1278,11 @@
     window.setSolo = function () {
       if (student.locked) return;
       const prevPartnerId = student.partnerId;
+      const nowTs = Date.now();
       if (student.partnerId) playTone("pop");
       student.partnerId = null;
       student.partnerName = null;
+      student.pairUpdatedAt = nowTs;
       renderYardClassmates();
       updateChoiceVisuals();
 
@@ -1274,6 +1293,7 @@
         partnerId: null,
         partnerName: null,
         prevPartnerId,
+        pairUpdatedAt: nowTs,
         timeLeft: student.timeLeft
       });
     };
